@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid()) //uuid é um tipo de id que é gerado automaticamente
+  email    String  @unique // unique é para não ter emails repetidos
+  name     String? // ? é para dizer que é opcional
+  password String
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  bookmarks  Bookmark[] // um usuário pode ter vários bookmarks
+
+  @@map("users") // @@map é para que o nome da tabela seja users
+}
+
+model Bookmark {
+  id        Int      @id @default(autoincrement()) //autoincrement é para que o id seja gerado automaticamente
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  link        String
+  description String?
+
+  userID String
+  user   User   @relation(fields: [userID], references: [id], onDelete: Cascade) // onDelete: Cascade é para que quando um usuário for deletado, todos os bookmarks dele sejam deletados também.
+
+  @@map("bookmarks") // @@map é para que o nome da tabela seja bookmarks
+}
